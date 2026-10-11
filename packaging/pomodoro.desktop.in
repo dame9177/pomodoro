@@ -6,6 +6,6 @@ Comment=Pomodoro discreto: 25 min de foco, 5 de pausa
 Exec=@EXEC@
 Icon=pomodoro
 Terminal=false
-Categories=Utility;Education;
+Categories=Utility;
 Keywords=pomodoro;timer;foco;estudo;
 StartupWMClass=pomodoro
