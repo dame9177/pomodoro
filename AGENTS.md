@@ -3,6 +3,7 @@
 Pomodoro desktop discreto (estilo Anthropic) para estudar: pílula no topo que expande ao clicar, 25/5
 
 Created 2026-10-11. Workspace-level rules live in `../AGENTS.md`. User-facing docs: `README.md`.
+Public repo: https://github.com/dame9177/pomodoro (MIT).
 Design: `docs/superpowers/specs/2026-10-11-pomodoro-design.md`.
 
 ## Setup / run / test
@@ -38,4 +39,10 @@ POMODORO_FOCUS_SECONDS=20 POMODORO_BREAK_SECONDS=10 uv run pomodoro   # quick cy
   second launch expands the running instance.
 - GNOME notification banners appear exactly where the card opens, so notifications are off by
   default (`"notifications": true` in settings turns them on).
-- Next: user review; then publish to GitHub (`dame9177/pomodoro`, public, MIT).
+- 2026-10-11: approved by the user and published as v0.1.0. Menu entry installed via
+  `scripts/install-desktop.sh` (no autostart yet).
+- Open question for the user: make the window never take keyboard focus
+  (`WindowDoesNotAcceptFocus`) so clicking it doesn't steal focus from Firefox; costs Space/Esc
+  and outside-click collapse.
+- Known minors: window only on the workspace where it started (not sticky); cursor doesn't
+  turn into a hand over the pill; `pw-play` children are reaped lazily.
