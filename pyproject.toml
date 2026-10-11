@@ -1,0 +1,29 @@
+[project]
+name = "pomodoro"
+version = "0.1.0"
+description = "Pomodoro desktop discreto (estilo Anthropic) para estudar: pílula no topo que expande ao clicar, 25/5"
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "dame9177" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "pyside6-essentials>=6.12.0",
+]
+
+[project.scripts]
+pomodoro = "pomodoro.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.12.23,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
