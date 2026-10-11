@@ -54,7 +54,35 @@ def test_expand_and_collapse_resize(window):
 
 
 def test_placed_below_available_top(window, app):
-    area = app.primaryScreen().availableGeometry()
+    screen = app.primaryScreen()
     pill = window.pill_rect()
-    assert pill.y == area.y() + 12
-    assert abs((pill.x + pill.w / 2) - (area.x() + area.width() / 2)) <= 1
+    assert pill.y == screen.availableGeometry().y() + 12
+    assert abs((pill.x + pill.w / 2) - screen.geometry().center().x()) <= 1
+
+
+def _mouse(window, kind, local, buttons):
+    from PySide6.QtCore import QPointF, Qt
+    from PySide6.QtGui import QMouseEvent
+    pos = QPointF(local)
+    glob = QPointF(window.mapToGlobal(local))
+    button = Qt.MouseButton.LeftButton if kind != QMouseEvent.Type.MouseMove else Qt.MouseButton.NoButton
+    ev = QMouseEvent(kind, pos, glob, button, buttons, Qt.KeyboardModifier.NoModifier)
+    QApplication.sendEvent(window, ev)
+
+
+def test_drag_moves_pill_and_emits(window):
+    from PySide6.QtCore import QPoint, Qt
+    from PySide6.QtGui import QMouseEvent
+    window.set_state(Phase.AWAITING_BREAK, False, 300, 0, 0, 0)
+    moved = []
+    window.moved.connect(moved.append)
+    start = window.pill_rect()
+    held, none = Qt.MouseButton.LeftButton, Qt.MouseButton.NoButton
+    p = QPoint(30, 25)
+    _mouse(window, QMouseEvent.Type.MouseButtonPress, p, held)
+    for i in range(1, 11):
+        _mouse(window, QMouseEvent.Type.MouseMove, QPoint(30 - 10 * i, 25 + 10 * i) + QPoint(10 * (i - 1), -10 * (i - 1)), held)
+    _mouse(window, QMouseEvent.Type.MouseButtonRelease, QPoint(20, 35), none)
+    assert moved, "drag did not emit moved"
+    assert window.pill_rect() != start
+    assert window.expansion == 0.0

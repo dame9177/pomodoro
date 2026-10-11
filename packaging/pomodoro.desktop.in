@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Pomodoro
+GenericName=Timer de estudo
+Comment=Pomodoro discreto: 25 min de foco, 5 de pausa
+Exec=@EXEC@
+Icon=pomodoro
+Terminal=false
+Categories=Utility;Education;
+Keywords=pomodoro;timer;foco;estudo;
+StartupWMClass=pomodoro

@@ -43,6 +43,10 @@ def _with_alpha(color: QColor, alpha: float) -> QColor:
     return c
 
 
+def human_duration(seconds: float) -> str:
+    return f"{round(seconds)} s" if seconds < 60 else f"{round(seconds / 60)} min"
+
+
 def _mmss(seconds: float) -> str:
     s = max(0, math.ceil(seconds))
     return f"{s // 60:02d}:{s % 60:02d}"
@@ -111,8 +115,10 @@ class PomodoroWindow(QWidget):
 
     def place(self, pos: tuple[int, int] | None) -> None:
         """Put the pill at a saved position, or top-center when missing/off-screen."""
-        primary = QGuiApplication.primaryScreen().availableGeometry()
-        x, y = placement.choose_position(pos, theme.PILL_SIZE, self._areas(), self._rect(primary))
+        screen = QGuiApplication.primaryScreen()
+        x, y = placement.choose_position(pos, theme.PILL_SIZE, self._areas(),
+                                         self._rect(screen.availableGeometry()),
+                                         center_x=screen.geometry().center().x())
         self._pill_pos = QPoint(x, y)
         self._apply_geometry()
 
@@ -401,17 +407,16 @@ class PomodoroWindow(QWidget):
         p.drawPolyline([c + QPointF(-4.5, 2.5), c + QPointF(0, -2), c + QPointF(4.5, 2.5)])
 
     def _texts(self) -> tuple[str, str]:
-        focus_min = round(self.focus_seconds / 60)
-        break_min = round(self.break_seconds / 60)
+        focus, brk = human_duration(self.focus_seconds), human_duration(self.break_seconds)
         if self.phase is Phase.IDLE:
-            return "Pronto para focar", f"{focus_min} min de foco, {break_min} de pausa."
+            return "Pronto para focar", f"{focus} de foco, {brk} de pausa."
         if self.phase is Phase.AWAITING_BREAK:
-            return "Hora do descanso", f"Bom trabalho. {break_min} min para respirar."
+            return "Hora do descanso", f"Bom trabalho. {brk} para respirar."
         if self.phase is Phase.AWAITING_FOCUS:
-            return "De volta ao foco", f"Mais {focus_min} min quando quiser."
+            return "De volta ao foco", f"Mais {focus} quando quiser."
         title = "Em foco" if self.phase is Phase.FOCUS else "Descansando"
         if self.paused:
-            return "Pausado", f"Faltam {math.ceil(self.remaining / 60)} min."
+            return "Pausado", f"Faltam {human_duration(self.remaining)}."
         end = datetime.now() + timedelta(seconds=self.remaining)
         return title, f"Termina às {end:%H:%M}."
 

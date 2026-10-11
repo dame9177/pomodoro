@@ -16,19 +16,28 @@ class Rect:
                 and other.y + other.h <= self.y + self.h)
 
 
-def default_position(area: Rect, size: tuple[int, int], margin: int = 12) -> tuple[int, int]:
-    """Centered horizontally, just below the top of the usable area (under the top bar)."""
-    return area.x + (area.w - size[0]) // 2, area.y + margin
+def default_position(area: Rect, size: tuple[int, int], margin: int = 12,
+                     center_x: int | None = None) -> tuple[int, int]:
+    """Just below the top of the usable area (under the top bar), horizontally centered.
+
+    center_x is the whole screen's center, so the pill lines up with GNOME's clock even
+    when a side dock shrinks the usable area; it is still kept inside that area.
+    """
+    if center_x is None:
+        center_x = area.x + area.w // 2
+    x = max(area.x, min(center_x - size[0] // 2, area.x + area.w - size[0]))
+    return x, area.y + margin
 
 
 def choose_position(saved: tuple[int, int] | None, size: tuple[int, int],
-                    areas: list[Rect], primary: Rect) -> tuple[int, int]:
+                    areas: list[Rect], primary: Rect,
+                    center_x: int | None = None) -> tuple[int, int]:
     """The saved position if the whole window fits on some screen, else the default."""
     if saved is not None:
         window = Rect(saved[0], saved[1], *size)
         if any(area.contains(window) for area in areas):
             return saved
-    return default_position(primary, size)
+    return default_position(primary, size, center_x=center_x)
 
 
 def card_geometry(pill: Rect, card_size: tuple[int, int], area: Rect) -> Rect:

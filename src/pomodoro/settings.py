@@ -11,6 +11,7 @@ class Settings:
     focus_seconds: int = 1500
     break_seconds: int = 300
     position: tuple[int, int] | None = None
+    notifications: bool = False   # GNOME banners show up right where the card opens
 
 
 def _positive_int(value, default: int) -> int:
@@ -28,6 +29,7 @@ def load_settings(path: Path) -> Settings:
         focus_seconds=_positive_int(data.get("focus_seconds"), Settings.focus_seconds),
         break_seconds=_positive_int(data.get("break_seconds"), Settings.break_seconds),
         position=tuple(pos) if valid_pos else None,
+        notifications=data.get("notifications") is True,
     )
 
 

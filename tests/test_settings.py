@@ -36,3 +36,10 @@ def test_xdg_fallback(monkeypatch, tmp_path):
     monkeypatch.delenv("XDG_CONFIG_HOME", raising=False)
     monkeypatch.setenv("HOME", str(tmp_path))
     assert paths.config_dir() == tmp_path / ".config" / "pomodoro"
+
+
+def test_notifications_off_by_default_and_round_trip(tmp_path):
+    path = tmp_path / "s.json"
+    assert load_settings(path).notifications is False
+    save_settings(path, Settings(notifications=True))
+    assert load_settings(path).notifications is True

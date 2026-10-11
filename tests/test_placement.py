@@ -46,3 +46,18 @@ def test_card_clamped_at_right_edge():
 def test_card_clamped_at_bottom_edge():
     pill = Rect(500, 1560, 120, 34)
     assert card_geometry(pill, (300, 200), PRIMARY) == Rect(410, 1400, 300, 200)
+
+
+def test_default_aligned_with_screen_center_not_dock_offset_area():
+    area = Rect(66, 32, 2494, 1568)            # left dock takes 66 px
+    assert default_position(area, SIZE, center_x=1280) == (1220, 44)
+
+
+def test_default_center_clamped_into_area():
+    area = Rect(66, 32, 2494, 1568)
+    assert default_position(area, SIZE, center_x=10) == (66, 44)
+
+
+def test_choose_position_passes_center():
+    area = Rect(66, 32, 2494, 1568)
+    assert choose_position(None, SIZE, [area], area, center_x=1280) == (1220, 44)

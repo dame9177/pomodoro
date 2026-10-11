@@ -37,3 +37,7 @@ def write_json_atomic(path: Path, data) -> None:
     except BaseException:
         os.unlink(tmp)
         raise
+
+
+def cache_dir() -> Path:
+    return _xdg("XDG_CACHE_HOME", ".cache")
