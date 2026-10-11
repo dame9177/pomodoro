@@ -8,7 +8,8 @@ swallows clicks meant for whatever is underneath.
 import math
 from datetime import datetime, timedelta
 
-from PySide6.QtCore import QEasingCurve, QPoint, QPointF, QRectF, Qt, QTimer, QVariantAnimation, Signal
+from PySide6.QtCore import (QEasingCurve, QElapsedTimer, QPoint, QPointF, QRectF, Qt, QTimer,
+                            QVariantAnimation, Signal)
 from PySide6.QtGui import QColor, QFontMetricsF, QGuiApplication, QPainter, QPainterPath, QPen
 from PySide6.QtWidgets import QMenu, QWidget
 
@@ -20,6 +21,7 @@ from . import theme
 AWAITING = (Phase.AWAITING_BREAK, Phase.AWAITING_FOCUS)
 DRAG_THRESHOLD = 4
 AUTO_COLLAPSE_MS = 6000
+PULSE_MS = 2200
 
 MENU_STYLE = """
 QMenu { background: #F5F1E8; color: #1F1E1C; border: 1px solid #E3DCCB;
@@ -93,9 +95,10 @@ class PomodoroWindow(QWidget):
         self._anim.setEasingCurve(QEasingCurve.Type.OutCubic)
         self._anim.valueChanged.connect(self._set_expansion)
 
-        self._pulse_anim = QVariantAnimation(self, startValue=0.0, endValue=1.0,
-                                             duration=2000, loopCount=-1)
-        self._pulse_anim.valueChanged.connect(self._on_pulse)
+        # A slow glow at ~15 fps: smooth enough for a 2 s breath, cheap enough to run all day.
+        self._pulse_timer = QTimer(self, interval=66)
+        self._pulse_timer.timeout.connect(self._on_pulse)
+        self._pulse_clock = QElapsedTimer()
 
         self._collapse_timer = QTimer(self, singleShot=True, interval=AUTO_COLLAPSE_MS)
         self._collapse_timer.timeout.connect(self._auto_collapse)
@@ -186,17 +189,17 @@ class PomodoroWindow(QWidget):
         self.expansion = float(value)
         self._apply_geometry()
 
-    def _on_pulse(self, value: float) -> None:
-        self._pulse = 0.5 - 0.5 * math.cos(2 * math.pi * value)
+    def _on_pulse(self) -> None:
+        self._pulse = 0.5 - 0.5 * math.cos(2 * math.pi * self._pulse_clock.elapsed() / PULSE_MS)
         self.update()
 
     def _update_pulse(self) -> None:
         want = self.phase in AWAITING and self._target == 0.0
-        running = self._pulse_anim.state() == QVariantAnimation.State.Running
-        if want and not running:
-            self._pulse_anim.start()
-        elif not want and running:
-            self._pulse_anim.stop()
+        if want and not self._pulse_timer.isActive():
+            self._pulse_clock.start()
+            self._pulse_timer.start()
+        elif not want and self._pulse_timer.isActive():
+            self._pulse_timer.stop()
             self._pulse = 0.0
 
     def _update_opacity(self) -> None:

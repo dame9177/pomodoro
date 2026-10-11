@@ -1,5 +1,6 @@
 """Colors, fonts and sizes. Warm cream, clay and sage; serif numerals."""
 
+from functools import lru_cache
 from pathlib import Path
 
 from PySide6.QtGui import QColor, QFont, QFontDatabase
@@ -26,6 +27,7 @@ _families = {"serif": "Serif", "sans": "Sans"}
 
 
 def load_fonts() -> None:
+    font.cache_clear()
     for key, file in (("serif", "SourceSerif4-Variable.ttf"), ("sans", "Inter-Variable.ttf")):
         font_id = QFontDatabase.addApplicationFont(str(FONTS_DIR / file))
         families = QFontDatabase.applicationFontFamilies(font_id) if font_id >= 0 else []
@@ -33,6 +35,7 @@ def load_fonts() -> None:
             _families[key] = families[0]
 
 
+@lru_cache(maxsize=64)
 def font(kind: str, px: float, weight: int = 400, spacing: float = 0.0) -> QFont:
     f = QFont(_families[kind])
     f.setPixelSize(round(px))

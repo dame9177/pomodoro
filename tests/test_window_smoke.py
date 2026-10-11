@@ -86,3 +86,16 @@ def test_drag_moves_pill_and_emits(window):
     assert moved, "drag did not emit moved"
     assert window.pill_rect() != start
     assert window.expansion == 0.0
+
+
+def test_pulse_repaints_slowly(window):
+    window.set_state(Phase.AWAITING_FOCUS, False, 1500, 0, 0, 0)
+    assert window._pulse_timer.isActive()
+    assert window._pulse_timer.interval() >= 60       # a slow glow; 60 fps would burn CPU all day
+    window.set_state(Phase.FOCUS, False, 1500, 0, 0, 0)
+    assert not window._pulse_timer.isActive()
+
+
+def test_fonts_are_cached():
+    from pomodoro.ui import theme
+    assert theme.font("serif", 16, 600) is theme.font("serif", 16, 600)
