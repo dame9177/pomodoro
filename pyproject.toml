@@ -1,6 +1,6 @@
 [project]
 name = "pomodoro"
-version = "0.1.0"
+version = "0.1.1"
 description = "Pomodoro desktop discreto (estilo Anthropic) para estudar: pílula no topo que expande ao clicar, 25/5"
 readme = "README.md"
 license = "MIT"

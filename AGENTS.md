@@ -24,6 +24,10 @@ POMODORO_FOCUS_SECONDS=20 POMODORO_BREAK_SECONDS=10 uv run pomodoro   # quick cy
 - Qt-free core (`timer`, `stats`, `settings`, `placement`, `paths`) is unit tested; keep Qt
   out of it.
 - Timer uses `CLOCK_BOOTTIME` so suspended time counts.
+- Wayland: `app.qt_platform()` forces `QT_QPA_PLATFORM=xcb` (XWayland) unless the user set it;
+  native Wayland ignores window position and stays-on-top. The user's machine boots into
+  Wayland (found 2026-10-14; earlier sessions were X11). Inspect windows with
+  `xwininfo -root -tree` / `xprop`; `QScreen.grabWindow` does not capture on Wayland.
 - Window must stay non-activating until clicked (`WA_ShowWithoutActivating`) and never cover
   the GNOME top bar: default y = `availableGeometry().top + 12`; x centered on the full screen
   (Ubuntu's left dock shrinks the available area by 66 px).
@@ -41,6 +45,8 @@ POMODORO_FOCUS_SECONDS=20 POMODORO_BREAK_SECONDS=10 uv run pomodoro   # quick cy
   default (`"notifications": true` in settings turns them on).
 - 2026-10-11: approved by the user and published as v0.1.0. Menu entry installed via
   `scripts/install-desktop.sh` (no autostart yet).
+- 2026-10-14: v0.1.1 — after a reboot into Wayland the pill was stuck and covered by other
+  windows; fixed by running through XWayland.
 - Open question for the user: make the window never take keyboard focus
   (`WindowDoesNotAcceptFocus`) so clicking it doesn't steal focus from Firefox; costs Space/Esc
   and outside-click collapse.

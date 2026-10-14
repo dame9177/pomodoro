@@ -33,6 +33,19 @@ def durations(settings: Settings, env) -> tuple[int, int]:
             pick("POMODORO_BREAK_SECONDS", settings.break_seconds))
 
 
+def qt_platform(env) -> str | None:
+    """Qt platform to force, or None to keep Qt's choice.
+
+    On Wayland a client cannot place its own window or keep it above others, which the
+    pill needs. GNOME still honors both for X11 clients, so run through XWayland when
+    it is available, unless the user picked a platform explicitly.
+    """
+    if env.get("QT_QPA_PLATFORM"):
+        return None
+    wayland = env.get("XDG_SESSION_TYPE") == "wayland" or env.get("WAYLAND_DISPLAY")
+    return "xcb" if wayland and env.get("DISPLAY") else None
+
+
 class Controller:
     def __init__(self, timer: Timer, stats: Stats, settings: Settings,
                  settings_path: Path, chime_path: Path):
@@ -119,6 +132,9 @@ def _ping_running_instance() -> bool:
 
 
 def run(argv: list[str] | None = None) -> int:
+    platform = qt_platform(os.environ)
+    if platform:
+        os.environ["QT_QPA_PLATFORM"] = platform
     app = QApplication(argv if argv is not None else sys.argv)
     app.setApplicationName("Pomodoro")
     app.setDesktopFileName("pomodoro")

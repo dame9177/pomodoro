@@ -17,7 +17,8 @@ Visual em creme, argila e sálvia, com numerais em Source Serif 4 e textos em In
 
 ## Requisitos
 
-- Linux com X11 (testado no Ubuntu com GNOME)
+- Linux com GNOME (testado no Ubuntu), em X11 ou Wayland. No Wayland o app roda pelo
+  XWayland, porque só assim o GNOME deixa a janela ficar no topo e ser posicionada
 - [uv](https://docs.astral.sh/uv/)
 - `pw-play` (PipeWire), `paplay` ou `aplay` para o som; sem nenhum deles o app só fica
   em silêncio

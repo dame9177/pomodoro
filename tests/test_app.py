@@ -92,3 +92,21 @@ def test_human_duration():
     assert human_duration(1500) == "25 min"
     assert human_duration(20) == "20 s"
     assert human_duration(90) == "2 min"
+
+
+def test_platform_wayland_uses_xwayland():
+    from pomodoro.app import qt_platform
+    env = {"XDG_SESSION_TYPE": "wayland", "WAYLAND_DISPLAY": "wayland-0", "DISPLAY": ":0"}
+    assert qt_platform(env) == "xcb"
+
+
+def test_platform_respects_user_choice():
+    from pomodoro.app import qt_platform
+    env = {"XDG_SESSION_TYPE": "wayland", "DISPLAY": ":0", "QT_QPA_PLATFORM": "wayland"}
+    assert qt_platform(env) is None
+
+
+def test_platform_x11_or_no_xwayland_untouched():
+    from pomodoro.app import qt_platform
+    assert qt_platform({"XDG_SESSION_TYPE": "x11", "DISPLAY": ":0"}) is None
+    assert qt_platform({"XDG_SESSION_TYPE": "wayland", "WAYLAND_DISPLAY": "wayland-0"}) is None
